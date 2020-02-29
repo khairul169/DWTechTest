@@ -21,5 +21,18 @@ Untuk soal nomor 4, sql queries dapat dilihat pada file [4.md](4.md), dan CRUD a
 
 Diperlukan web server dengan php & mysql server untuk menjalankan aplikasi. Database dan tabel serta isinya dapat diimport dari file [4.sql](4.sql).
 
+Setelah database diimport, selanjutnya perlu dilakukan konfigurasi database pada file [4.php](4.php). Isikan `hostname`, `username`, `password`, dan `nama database` yang tepat pada variabel `$config`.
+
+```php
+$config = [
+  'host' => 'localhost',
+  'user' => 'root',
+  'pass' => '',
+  'db' => 'dw_test'
+];
+```
+
+Yap selesai, aplikasi sudah bisa dijalankan di browser lokal dengan mengakses uri `/4.php`.
+
 ---
 Khairul Hidayat
