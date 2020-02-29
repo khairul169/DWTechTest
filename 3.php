@@ -8,7 +8,7 @@ function drawImage($num) {
 
     for ($y = -floor($half); $y < ceil($half); $y++) {
         for ($x = -floor($half); $x < ceil($half); $x++) {
-            // Print '@' jika nilai absolut dari x kurang dari nilai absolut dari y
+            // Print '@' jika nilai absolut x kurang dari atau sama dengan nilai absolut y
             if (abs($x) <= abs($y))
                 echo "@";
             else
@@ -22,11 +22,11 @@ function drawImage($num) {
     }
 }
 
-echo "drawImage(5):\n";
+echo "drawImage(5);\nakan dicetak di layar:\n";
 drawImage(5);
 
 echo "\n";
-echo "drawImage(7):\n";
+echo "drawImage(7);\nakan dicetak di layar:\n";
 drawImage(7);
 
 ?>
