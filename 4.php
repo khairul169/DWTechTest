@@ -66,6 +66,122 @@ if ($page == 'add_provinsi' && isset($_POST['submit'])) {
     }
   }
 }
+
+if ($page == 'edit_provinsi') {
+  // Params
+  $prov_id = !empty($_GET['id']) ? $db->escape_string($_GET['id']) : 0;
+
+  // Submit for edit
+  if (isset($_POST['submit'])) {
+    // Params
+    $nama = !empty($_POST['nama']) ? $db->escape_string(trim($_POST['nama'])) : null;
+    $diresmikan = !empty($_POST['diresmikan']) ? trim($_POST['diresmikan']) : null;
+    $diresmikan = strftime('%Y-%m-%d', strtotime($diresmikan));
+    $photo = !empty($_POST['photo']) ? $db->escape_string(trim($_POST['photo'])) : null;
+    $pulau = !empty($_POST['pulau']) ? $db->escape_string(trim($_POST['pulau'])) : null;
+
+    if (!$nama) {
+      $error = 'Nama kosong!';
+    } else {
+      $query = $db->query("UPDATE provinsi_tb SET nama='$nama', diresmikan='$diresmikan',
+        photo='$photo', pulau='$pulau' WHERE id='$prov_id'");
+      if ($query) {
+        header("Location: 4.php?p=view_provinsi&id=$prov_id");
+      } else {
+        $error = 'Gagal menyimpan data!';
+      }
+    }
+  }
+
+  // Fetch provinsi data
+  $query = $db->query("SELECT * FROM provinsi_tb WHERE id='$prov_id' LIMIT 1");
+  $provinsi = $query->num_rows ? $query->fetch_assoc() : false;
+}
+
+if ($page == 'del_provinsi') {
+  // Params
+  $prov_id = !empty($_GET['id']) ? $db->escape_string($_GET['id']) : 0;
+
+  // Hapus provinsi
+  $query = $db->query("DELETE FROM provinsi_tb WHERE id='$prov_id' LIMIT 1");
+  header("Location: 4.php");
+}
+
+if ($page == 'add_kabupaten') {
+  // Params
+  $prov_id = !empty($_GET['id']) ? $db->escape_string($_GET['id']) : 0;
+
+  // Fetch provinsi data
+  $query = $db->query("SELECT nama FROM provinsi_tb WHERE id='$prov_id' LIMIT 1");
+  $provinsi = $query->num_rows ? $query->fetch_assoc() : false;
+
+  if (isset($_POST['submit'])) {
+    // Params
+    $nama = !empty($_POST['nama']) ? $db->escape_string(trim($_POST['nama'])) : null;
+    $diresmikan = !empty($_POST['diresmikan']) ? trim($_POST['diresmikan']) : null;
+    $diresmikan = strftime('%Y-%m-%d', strtotime($diresmikan));
+    $photo = !empty($_POST['photo']) ? $db->escape_string(trim($_POST['photo'])) : null;
+
+    if (!$nama) {
+      $error = 'Nama kosong!';
+    } else {
+      $query = $db->query("INSERT INTO kabupaten_tb (`nama`, `provinsi_id`, `diresmikan`, `photo`)
+        VALUES ('$nama', '$prov_id', '$diresmikan', '$photo')");
+      if ($query) {
+        header("Location: 4.php?p=view_provinsi&id=$prov_id");
+      } else {
+        $error = 'Gagal menyimpan data!';
+      }
+    }
+  }
+}
+
+if ($page == 'edit_kabupaten') {
+  // Params
+  $kab_id = !empty($_GET['id']) ? $db->escape_string($_GET['id']) : 0;
+
+  // Submit for edit
+  if (isset($_POST['submit'])) {
+    // Params
+    $nama = !empty($_POST['nama']) ? $db->escape_string(trim($_POST['nama'])) : null;
+    $diresmikan = !empty($_POST['diresmikan']) ? trim($_POST['diresmikan']) : null;
+    $diresmikan = strftime('%Y-%m-%d', strtotime($diresmikan));
+    $photo = !empty($_POST['photo']) ? $db->escape_string(trim($_POST['photo'])) : null;
+    $pulau = !empty($_POST['pulau']) ? $db->escape_string(trim($_POST['pulau'])) : null;
+
+    if (!$nama) {
+      $error = 'Nama kosong!';
+    } else {
+      $query = $db->query("UPDATE kabupaten_tb SET nama='$nama', diresmikan='$diresmikan',
+        photo='$photo' WHERE id='$kab_id'");
+      if ($query) {
+        header("Location: 4.php?p=view_kabupaten&id=$kab_id");
+      } else {
+        $error = 'Gagal menyimpan data!';
+      }
+    }
+  }
+
+  // Fetch data kabupaten
+  $query = $db->query("SELECT kab.*, prov.nama AS provinsi
+    FROM kabupaten_tb AS kab
+    INNER JOIN provinsi_tb AS prov ON kab.provinsi_id=prov.id
+    WHERE kab.id='$kab_id' LIMIT 1");
+  $kabupaten = $query->num_rows ? $query->fetch_assoc() : false;
+}
+
+if ($page == 'del_kabupaten') {
+  // Params
+  $kab_id = !empty($_GET['id']) ? $db->escape_string($_GET['id']) : 0;
+
+  // Fetch data kabupaten
+  $query = $db->query("SELECT provinsi_id FROM kabupaten_tb WHERE id='$kab_id' LIMIT 1");
+  $prov_id = $query->num_rows ? $query->fetch_assoc()['provinsi_id'] : false;
+
+  // Hapus provinsi
+  $query = $db->query("DELETE FROM kabupaten_tb WHERE id='$kab_id' LIMIT 1");
+  header("Location: 4.php" . ($prov_id ? "?p=view_provinsi&id=$prov_id" : ''));
+}
 ?>
 <!doctype html>
 <html>
@@ -150,11 +266,15 @@ if ($page == 'add_provinsi' && isset($_POST['submit'])) {
 
       .button, input[type='submit'] {
         display: block; padding: 12px 16px; background: #009688; color: #fff;
-        text-align: center; border: none;
+        text-align: center; border: none; font-size: 1.0em;
       }
 
       .button.contained, input[type='submit'] {
         border-radius: 3px; box-shadow: 0 1px 4px 1px rgba(0, 0, 0, 0.2);
+      }
+
+      .button.alt {
+        background: #EEEEEE; color: #333;
       }
 
       input[type='text'] {
@@ -280,8 +400,11 @@ if ($page == 'add_provinsi' && isset($_POST['submit'])) {
       <?php if ($page == 'view_kabupaten' && $kabupaten) { ?>
       <!-- View Kabupaten -->
       <div style="display: flex; align-items: flex-start;">
-        <div style="width: 20%; margin-right: 5%; display: flex; justify-content: center;">
-          <img src="<?php echo $kabupaten['photo']; ?>" style="width: 80%;" />
+        <div style="width: 20%; margin-right: 5%; display: flex; flex-direction: column;">
+          <img src="<?php echo $kabupaten['photo']; ?>" style="width: 80%; align-self: center;" />
+          <a href="?p=edit_kabupaten&id=<?php echo $kabupaten['id']; ?>" class="button contained" style="margin-top: 32px;">
+            Ubah
+          </a>
         </div>
         <div style="flex: 1;">
           <h2>
@@ -327,6 +450,81 @@ if ($page == 'add_provinsi' && isset($_POST['submit'])) {
         </div>
       </form>
       <!-- End of Add Provinsi -->
+      <?php } ?>
+
+      <?php if ($page == 'edit_provinsi' && $provinsi) { ?>
+      <!-- Edit Provinsi -->
+      <form method="POST">
+        <?php if (isset($error)) echo "<div class=\"message\">$error</div>\n"; ?>
+        <div class="card" style="padding: 32px;">
+          <p class="caption">Nama Provinsi</p>
+          <input type="text" name="nama" value="<?php echo $provinsi['nama']; ?>" />
+          <br />
+          <p class="caption">Tanggal Diresmikan</p>
+          <input type="text" name="diresmikan" value="<?php echo $provinsi['diresmikan']; ?>" placeholder="DD-MM-YYYY" />
+          <br />
+          <p class="caption">Foto</p>
+          <input type="text" name="photo" value="<?php echo $provinsi['photo']; ?>" />
+          <br />
+          <p class="caption">Pulau</p>
+          <input type="text" name="pulau" value="<?php echo $provinsi['pulau']; ?>" />
+          <br />
+          <input type="submit" value="Simpan" name="submit" />
+          <a href="?p=del_provinsi&id=<?php echo $provinsi['id']; ?>" class="button contained alt" style="margin-top: 16px;">
+            Hapus
+          </a>
+        </div>
+      </form>
+      <!-- End of Edit Provinsi -->
+      <?php } ?>
+
+      <?php if ($page == 'add_kabupaten') { ?>
+      <!-- Add Kabupaten -->
+      <form method="POST">
+        <?php if (isset($error)) echo "<div class=\"message\">$error</div>\n"; ?>
+        <div class="card" style="padding: 32px;">
+          <p class="caption">Nama Provinsi</p>
+          <input type="text" readonly value="<?php echo $provinsi ? $provinsi['nama'] : ''; ?>" />
+          <br />
+          <p class="caption">Nama Kabupaten</p>
+          <input type="text" name="nama" />
+          <br />
+          <p class="caption">Tanggal Diresmikan</p>
+          <input type="text" name="diresmikan" placeholder="DD-MM-YYYY" />
+          <br />
+          <p class="caption">Foto</p>
+          <input type="text" name="photo" />
+          <br />
+          <input type="submit" value="Simpan" name="submit" />
+        </div>
+      </form>
+      <!-- End of Add Kabupaten -->
+      <?php } ?>
+
+      <?php if ($page == 'edit_kabupaten' && $kabupaten) { ?>
+      <!-- Edit Kabupaten -->
+      <form method="POST">
+        <?php if (isset($error)) echo "<div class=\"message\">$error</div>\n"; ?>
+        <div class="card" style="padding: 32px;">
+          <p class="caption">Nama Provinsi</p>
+          <input type="text" readonly value="<?php echo $kabupaten['provinsi']; ?>" />
+          <br />
+          <p class="caption">Nama Kabupaten</p>
+          <input type="text" name="nama" value="<?php echo $kabupaten['nama']; ?>" />
+          <br />
+          <p class="caption">Tanggal Diresmikan</p>
+          <input type="text" name="diresmikan" value="<?php echo $kabupaten['diresmikan']; ?>" placeholder="DD-MM-YYYY" />
+          <br />
+          <p class="caption">Foto</p>
+          <input type="text" name="photo" value="<?php echo $kabupaten['photo']; ?>" />
+          <br />
+          <input type="submit" value="Simpan" name="submit" />
+          <a href="?p=del_kabupaten&id=<?php echo $kabupaten['id']; ?>" class="button contained alt" style="margin-top: 16px;">
+            Hapus
+          </a>
+        </div>
+      </form>
+      <!-- End of Edit Kabupaten -->
       <?php } ?>
     </article>
   </body>
