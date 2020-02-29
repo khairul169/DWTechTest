@@ -96,6 +96,10 @@ if ($page == 'edit_provinsi') {
   // Fetch provinsi data
   $query = $db->query("SELECT * FROM provinsi_tb WHERE id='$prov_id' LIMIT 1");
   $provinsi = $query->num_rows ? $query->fetch_assoc() : false;
+
+  if ($provinsi) {
+    $provinsi['diresmikan'] = strftime('%d-%m-%Y', strtotime($provinsi['diresmikan']));
+  }
 }
 
 if ($page == 'del_provinsi') {
@@ -168,6 +172,10 @@ if ($page == 'edit_kabupaten') {
     INNER JOIN provinsi_tb AS prov ON kab.provinsi_id=prov.id
     WHERE kab.id='$kab_id' LIMIT 1");
   $kabupaten = $query->num_rows ? $query->fetch_assoc() : false;
+
+  if ($kabupaten) {
+    $kabupaten['diresmikan'] = strftime('%d-%m-%Y', strtotime($kabupaten['diresmikan']));
+  }
 }
 
 if ($page == 'del_kabupaten') {
